@@ -53,6 +53,7 @@ pub struct Window {
   /// Gtk application window.
   pub(crate) window: gtk::ApplicationWindow,
   pub(crate) default_vbox: Option<gtk::Box>,
+  pub(crate) fixed: Option<gtk::Fixed>,
   /// Window requests sender
   pub(crate) window_requests_tx: glib::Sender<(WindowId, WindowRequest)>,
   scale_factor: Rc<AtomicI32>,
@@ -162,6 +163,16 @@ impl Window {
       Some(box_)
     } else {
       None
+    };
+
+    let fixed = match default_vbox {
+        Some(ref vbox) => {
+          let fixed = gtk::Fixed::new();
+          vbox.pack_start(&fixed, true, true, 0);
+          fixed.show_all();
+          Some(fixed)
+        },
+        None => None,
     };
 
     // Rest attributes
@@ -278,6 +289,7 @@ impl Window {
       window_id,
       window,
       default_vbox,
+      fixed,
       window_requests_tx,
       draw_tx,
       scale_factor,
@@ -421,6 +433,7 @@ impl Window {
       window_id,
       window,
       default_vbox: None,
+      fixed: None,
       window_requests_tx,
       draw_tx,
       scale_factor,
